@@ -1,0 +1,11 @@
+[package]
+name = "collection_type_table"
+edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
+license = "MIT"
+authors = ["Andrei Stefanescu (andrei@asymptotic.tech)", "Cosmin Radoi (cos@asymptotic.tech)"]
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
+
+[addresses]
+collection_type_table = "0x0"
