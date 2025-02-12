@@ -1,6 +1,6 @@
 /// A table that uses types as keys, allowing for type-based value storage and retrieval.
 /// The table stores values of type V and uses Move types as keys.
-module collection_type_table::type_table;
+module asymptotic::type_table;
 
 use std::type_name::{Self, TypeName};
 use sui::table::{Self, Table};
