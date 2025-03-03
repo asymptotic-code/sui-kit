@@ -1,10 +1,5 @@
 module amm::pool;
 
-/**
-Derived from https://github.com/kunalabs-io/sui-smart-contracts
-Many thanks to @kkas for the original implementation!
-*/
-
 use std::type_name::{Self, TypeName};
 use std::u128;
 use std::u64;
@@ -12,6 +7,10 @@ use sui::balance::{Self, Balance, Supply, create_supply};
 use sui::event;
 use sui::table::{Self, Table};
 
+/**
+Derived from https://github.com/kunalabs-io/sui-smart-contracts
+Many thanks to @kkas for the original implementation!
+*/
 
 /* ================= errors ================= */
 
@@ -48,9 +47,9 @@ public struct Pool<phantom A, phantom B> has key {
     lp_supply: Supply<LP<A, B>>,
     /// The liquidity provider fees expressed in basis points (1 bps is 0.01%)
     lp_fee_bps: u64,
-    /// Admin fees are calculated as a percentage of liquidity provider fees.
+    /// Admin fees are computed as a percentage of liquidity provider fees
     admin_fee_pct: u64,
-    /// Admin fees are deposited into this balance. They can be colleced by
+    /// Admin fees are deposited into this balance. They can be collected by
     /// this pool's PoolAdminCap bearer.
     admin_fee_balance: Balance<LP<A, B>>,
 }
@@ -253,28 +252,25 @@ public fun withdraw<A, B>(
     pool.lp_supply.decrease_supply(lp_in);
 
     // return amounts
-    (
-        pool.balance_a.split(a_out),
-        pool.balance_b.split(b_out),
-    )
+    (pool.balance_a.split(a_out), pool.balance_b.split(b_out))
 }
 
-/// Calclates swap result and fees based on the input amount and current pool state.
-fun calc_swap_result(
-    i_value: u64,
-    i_pool_value: u64,
-    o_pool_value: u64,
+/// Computes swap result and fees based on the input amount and current pool state.
+fun generic_swap(
+    a_value: u64,
+    a_pool_value: u64,
+    b_pool_value: u64,
     pool_lp_value: u64,
     lp_fee_bps: u64,
     admin_fee_pct: u64,
 ): (u64, u64) {
     // calc out value
-    let lp_fee_value = ceil_muldiv(i_value, lp_fee_bps, BPS_IN_100_PCT);
-    let in_after_lp_fee = i_value - lp_fee_value;
+    let lp_fee_value = ceil_muldiv(a_value, lp_fee_bps, BPS_IN_100_PCT);
+    let in_after_lp_fee = a_value - lp_fee_value;
     let out_value = muldiv(
         in_after_lp_fee,
-        o_pool_value,
-        i_pool_value + in_after_lp_fee,
+        b_pool_value,
+        a_pool_value + in_after_lp_fee,
     );
 
     // calc admin fee
@@ -282,8 +278,8 @@ fun calc_swap_result(
     // dL = L * sqrt((A + dA) / A) - L = sqrt(L^2(A + dA) / A) - L
     let result_pool_lp_value_sq = muldiv_u128(
         (pool_lp_value as u128) * (pool_lp_value as u128),
-        ((i_pool_value + i_value) as u128),
-        ((i_pool_value + i_value - admin_fee_value) as u128),
+        ((a_pool_value + a_value) as u128),
+        ((a_pool_value + a_value - admin_fee_value) as u128),
     );
     let admin_fee_in_lp = sqrt(result_pool_lp_value_sq) - pool_lp_value;
 
@@ -291,18 +287,12 @@ fun calc_swap_result(
 }
 
 /// Swaps the provided amount of A for B.
-public fun swap_a<A, B>(
-    pool: &mut Pool<A, B>,
-    input: Balance<A>,
-): Balance<B> {
+public fun swap_a<A, B>(pool: &mut Pool<A, B>, input: Balance<A>): Balance<B> {
     if (input.value() == 0) {
         input.destroy_zero();
         return balance::zero()
     };
-    assert!(
-        pool.balance_a.value() > 0 && pool.balance_b.value() > 0,
-        ENoLiquidity,
-    );
+    assert!(pool.balance_a.value() > 0 && pool.balance_b.value() > 0, ENoLiquidity);
 
     // calculate swap result
     let i_value = input.value();
@@ -310,7 +300,7 @@ public fun swap_a<A, B>(
     let o_pool_value = pool.balance_b.value();
     let pool_lp_value = pool.lp_supply.supply_value();
 
-    let (out_value, admin_fee_in_lp) = calc_swap_result(
+    let (out_value, admin_fee_in_lp) = generic_swap(
         i_value,
         i_pool_value,
         o_pool_value,
@@ -320,9 +310,7 @@ public fun swap_a<A, B>(
     );
 
     // deposit admin fee
-    pool
-        .admin_fee_balance
-        .join(pool.lp_supply.increase_supply(admin_fee_in_lp));
+    pool.admin_fee_balance.join(pool.lp_supply.increase_supply(admin_fee_in_lp));
 
     // deposit input
     pool.balance_a.join(input);
@@ -332,26 +320,20 @@ public fun swap_a<A, B>(
 }
 
 /// Swaps the provided amount of B for A.
-public fun swap_b<A, B>(
-    pool: &mut Pool<A, B>,
-    input: Balance<B>,
-): Balance<A> {
+public fun swap_b<A, B>(pool: &mut Pool<A, B>, input: Balance<B>): Balance<A> {
     if (input.value() == 0) {
         input.destroy_zero();
         return balance::zero()
     };
-    assert!(
-        pool.balance_a.value() > 0 && pool.balance_b.value() > 0,
-        ENoLiquidity,
-    );
+    assert!(pool.balance_a.value() > 0 && pool.balance_b.value() > 0, ENoLiquidity);
 
-    // calculate swap result
+    // compute swap result
     let i_value = input.value();
     let i_pool_value = pool.balance_b.value();
     let o_pool_value = pool.balance_a.value();
     let pool_lp_value = pool.lp_supply.supply_value();
 
-    let (out_value, admin_fee_in_lp) = calc_swap_result(
+    let (out_value, admin_fee_in_lp) = generic_swap(
         i_value,
         i_pool_value,
         o_pool_value,
@@ -361,9 +343,7 @@ public fun swap_b<A, B>(
     );
 
     // deposit admin fee
-    pool
-        .admin_fee_balance
-        .join(pool.lp_supply.increase_supply(admin_fee_in_lp));
+    pool.admin_fee_balance.join(pool.lp_supply.increase_supply(admin_fee_in_lp));
 
     // deposit input
     pool.balance_b.join(input);
@@ -464,12 +444,16 @@ macro fun requires_balance_leq_supply<$T>($balance: &Balance<$T>, $supply: &Supp
 macro fun requires_balance_sum_no_overflow<$T>($balance0: &Balance<$T>, $balance1: &Balance<$T>) {
     let balance0 = $balance0;
     let balance1 = $balance1;
-    requires(balance0.value().to_int().add(balance1.value().to_int()).lt(u64::max_value!().to_int()));
+    requires(balance0
+        .value()
+        .to_int()
+        .add(balance1.value().to_int())
+        .lt(u64::max_value!().to_int()));
 }
 
 /* ================= specs ================= */
 
-#[spec(verify)]
+#[spec]
 fun create_spec<A, B>(
     init_a: Balance<A>,
     init_b: Balance<B>,
@@ -488,7 +472,7 @@ fun create_spec<A, B>(
     result
 }
 
-#[spec(verify)]
+#[spec]
 fun deposit_spec<A, B>(
     pool: &mut Pool<A, B>,
     input_a: Balance<A>,
@@ -511,7 +495,7 @@ fun deposit_spec<A, B>(
     (result_input_a, result_input_b, result_lp)
 }
 
-#[spec(verify)]
+#[spec]
 fun generic_deposit_spec(
     input_a_value: u64,
     input_b_value: u64,
@@ -528,7 +512,9 @@ fun generic_deposit_spec(
     requires(old_A.add(input_a_value.to_int()).lte(u64::max_value!().to_int()));
     requires(old_B.add(input_b_value.to_int()).lte(u64::max_value!().to_int()));
 
-    requires(old_L.is_zero!() && old_A.is_zero!() && old_B.is_zero!() || !old_L.is_zero!() && !old_A.is_zero!() && !old_B.is_zero!());
+    requires(
+        old_L.is_zero!() && old_A.is_zero!() && old_B.is_zero!() || !old_L.is_zero!() && !old_A.is_zero!() && !old_B.is_zero!(),
+    );
 
     // L^2 <= A * B
     requires(old_L.mul(old_L).lte(old_A.mul(old_B)));
@@ -542,7 +528,7 @@ fun generic_deposit_spec(
         input_b_value,
         pool_a_value,
         pool_b_value,
-        pool_lp_value
+        pool_lp_value,
     );
 
     let new_A = old_A.add(deposit_a.to_int());
@@ -553,7 +539,9 @@ fun generic_deposit_spec(
     ensures(deposit_b <= input_b_value);
     ensures(new_L.lte(u64::max_value!().to_int()));
 
-    ensures(new_L.is_zero!() && new_A.is_zero!() && new_B.is_zero!() || !new_L.is_zero!() && !new_A.is_zero!() && !new_B.is_zero!());
+    ensures(
+        new_L.is_zero!() && new_A.is_zero!() && new_B.is_zero!() || !new_L.is_zero!() && !new_A.is_zero!() && !new_B.is_zero!(),
+    );
 
     // (L + dL) * A <= (A + dA) * L <=> L' * A <= A' * L
     ensures(new_L.mul(old_A).lte(new_A.mul(old_L)));
@@ -565,11 +553,8 @@ fun generic_deposit_spec(
     (deposit_a, deposit_b, lp_to_issue)
 }
 
-#[spec(verify)]
-fun withdraw_spec<A, B>(
-    pool: &mut Pool<A, B>,
-    lp_in: Balance<LP<A, B>>
-): (Balance<A>, Balance<B>) {
+#[spec]
+fun withdraw_spec<A, B>(pool: &mut Pool<A, B>, lp_in: Balance<LP<A, B>>): (Balance<A>, Balance<B>) {
     requires_balance_leq_supply!(&lp_in, &pool.lp_supply);
 
     // regarding asserts:
@@ -588,11 +573,8 @@ fun withdraw_spec<A, B>(
     (result_a, result_b)
 }
 
-#[spec(verify)]
-fun swap_a_spec<A, B>(
-    pool: &mut Pool<A, B>,
-    input: Balance<A>,
-): Balance<B> {
+#[spec]
+fun swap_a_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<A>): Balance<B> {
     requires_balance_sum_no_overflow!(&pool.balance_a, &input);
     requires_balance_leq_supply!(&pool.admin_fee_balance, &pool.lp_supply);
 
@@ -621,11 +603,8 @@ fun swap_a_spec<A, B>(
     result
 }
 
-#[spec(verify)]
-fun swap_b_spec<A, B>(
-    pool: &mut Pool<A, B>,
-    input: Balance<B>,
-): Balance<A> {
+#[spec]
+fun swap_b_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<B>): Balance<A> {
     requires_balance_sum_no_overflow!(&pool.balance_b, &input);
     requires_balance_leq_supply!(&pool.admin_fee_balance, &pool.lp_supply);
 
@@ -654,8 +633,8 @@ fun swap_b_spec<A, B>(
     result
 }
 
-#[spec(verify)]
-fun calc_swap_result_spec(
+#[spec]
+fun generic_swap_spec(
     i_value: u64,
     i_pool_value: u64,
     o_pool_value: u64,
@@ -684,7 +663,7 @@ fun calc_swap_result_spec(
     // there aren't any overflows or divisions by zero, because there aren't any asserts
     // (the list of assert conditions is exhaustive)
 
-    let (out_value, admin_fee_in_lp) = calc_swap_result(
+    let (out_value, admin_fee_in_lp) = generic_swap(
         i_value,
         i_pool_value,
         o_pool_value,
@@ -710,7 +689,7 @@ fun calc_swap_result_spec(
     (out_value, admin_fee_in_lp)
 }
 
-#[spec(verify)]
+#[spec]
 fun admin_set_fees_spec<A, B>(
     pool: &mut Pool<A, B>,
     cap: &AdminCap,
