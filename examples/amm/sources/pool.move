@@ -391,9 +391,9 @@ fun Pool_inv<A, B>(self: &Pool<A, B>): bool {
     let a = self.balance_a.value();
     let b = self.balance_b.value();
 
-    // balances are 0 when LP supply is 0 or when LP supply > 0, both balances A and B are > 0
+    // Balances are 0 when LP supply is 0 or when LP supply > 0, both balances A and B are > 0
     ((l == 0 && a == 0 && b == 0) || (l > 0 && a > 0 && b > 0)) &&
-    // the LP supply is always <= the geometric mean of the pool balances (this will make sure there is no overflow)
+    // The LP supply is always <= the geometric mean of the pool balances (this will make sure there is no overflow)
     l.to_int().mul(l.to_int()).lte(a.to_int().mul(b.to_int())) &&
     self.lp_fee_bps <= BPS_IN_100_PCT && self.admin_fee_pct <= 100
 }
@@ -481,9 +481,8 @@ fun deposit_spec<A, B>(
     requires_balance_sum_no_overflow!(&pool.balance_a, &input_a);
     requires_balance_sum_no_overflow!(&pool.balance_b, &input_b);
 
-    // regarding asserts:
-    // there aren't any overflows or divisions by zero, because there aren't any asserts
-    // (the list of assert conditions is exhaustive)
+    // We also prove that `deposit` cannot generate any overflows or divisions by zero.
+    // This is reflected in the spec by the fact that there are no asserts.
 
     let old_pool = old!(pool);
 
@@ -519,9 +518,8 @@ fun generic_deposit_spec(
     // L^2 <= A * B
     requires(old_L.mul(old_L).lte(old_A.mul(old_B)));
 
-    // regarding asserts:
-    // there aren't any overflows or divisions by zero, because there aren't any asserts
-    // (the list of assert conditions is exhaustive)
+    // We also prove that `generic_deposit` cannot generate any overflows or divisions by zero.
+    // This is reflected in the spec by the fact that there are no asserts.
 
     let (deposit_a, deposit_b, lp_to_issue) = generic_deposit(
         input_a_value,
@@ -557,17 +555,16 @@ fun generic_deposit_spec(
 fun withdraw_spec<A, B>(pool: &mut Pool<A, B>, lp_in: Balance<LP<A, B>>): (Balance<A>, Balance<B>) {
     requires_balance_leq_supply!(&lp_in, &pool.lp_supply);
 
-    // regarding asserts:
-    // there aren't any overflows or divisions by zero, because there aren't any asserts
-    // (the list of assert conditions is exhaustive)
+    // We also prove that `withdraw` cannot generate any overflows or divisions by zero.
+    // This is reflected in the spec by the fact that there are no asserts.
 
     let old_pool = old!(pool);
 
     let (result_a, result_b) = withdraw(pool, lp_in);
 
-    // the invariant `Pool_inv` implies that when all LPs are withdrawn, both A and B go to zero
+    // The invariant `Pool_inv` implies that when all LPs are withdrawn, both A and B go to zero.
 
-    // prove that withdrawing liquidity always returns A and B of smaller value then what was withdrawn
+    // Proving that withdrawing liquidity always returns A and B of smaller value then what was withdrawn.
     ensures_a_and_b_price_increases!(pool, old_pool);
 
     (result_a, result_b)
@@ -578,14 +575,13 @@ fun swap_a_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<A>): Balance<B> {
     requires_balance_sum_no_overflow!(&pool.balance_a, &input);
     requires_balance_leq_supply!(&pool.admin_fee_balance, &pool.lp_supply);
 
-    // swapping on an empty pool is not possible
+    // Swapping on an empty pool is not possible.
     if (input.value() > 0) {
         asserts(pool.lp_supply.supply_value() > 0);
     };
 
-    // regarding asserts:
-    // there aren't any overflows or divisions by zero, because there aren't any other asserts
-    // (the list of asserts conditions is exhaustive)
+    // We also prove that `swap_a` cannot generate any overflows or divisions by zero.
+    // This is reflected in the spec by the fact that there are no asserts.
 
     let old_pool = old!(pool);
 
@@ -613,9 +609,8 @@ fun swap_b_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<B>): Balance<A> {
         asserts(pool.lp_supply.supply_value() > 0);
     };
 
-    // regarding asserts:
-    // there aren't any overflows or divisions by zero, because there aren't any other asserts
-    // (the list of asserts conditions is exhaustive)
+    // We also prove that `swap_b` cannot generate any overflows or divisions by zero.
+    // This is reflected in the spec by the fact that there are no asserts.
 
     let old_pool = old!(pool);
 
@@ -659,9 +654,8 @@ fun generic_swap_spec(
     requires(lp_fee_bps <= BPS_IN_100_PCT);
     requires(admin_fee_pct <= 100);
 
-    // regarding asserts:
-    // there aren't any overflows or divisions by zero, because there aren't any asserts
-    // (the list of assert conditions is exhaustive)
+    // We also prove that `generic_swap` cannot generate any overflows or divisions by zero.
+    // This is reflected in the spec by the fact that there are no asserts.
 
     let (out_value, admin_fee_in_lp) = generic_swap(
         i_value,
