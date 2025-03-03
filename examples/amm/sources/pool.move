@@ -29,7 +29,7 @@ public struct PoolCreationEvent has copy, drop {
 
 /* ================= constants ================= */
 
-/// The number of basis points in 100%.
+/// The number of basis points in 100%
 const BPS_IN_100_PCT: u64 = 100 * 100;
 
 /* ================= LP ================= */
