@@ -1,2 +1,3 @@
 output.bpl
 *.log.*
+*.bpl.log
