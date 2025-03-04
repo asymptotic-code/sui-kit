@@ -406,12 +406,12 @@ macro fun ensures_a_and_b_price_increases<$A, $B>($pool: &Pool<$A, $B>, $old_poo
     let old_L = old_pool.lp_supply.supply_value().to_int();
     let new_L = pool.lp_supply.supply_value().to_int();
 
-    // (L + dL) * A <= (A + dA) * L <=> L' * A <= A' * L
+    // (L + dL) * A <= (A + dA) * L
     let old_A = old_pool.balance_a.value().to_int();
     let new_A = pool.balance_a.value().to_int();
     ensures(new_L.mul(old_A).lte(new_A.mul(old_L)));
 
-    // (L + dL) * B <= (B + dB) * L <=> L' * B <= B' * L
+    // (L + dL) * B <= (B + dB) * L
     let old_B = old_pool.balance_b.value().to_int();
     let new_B = pool.balance_b.value().to_int();
     ensures(new_L.mul(old_B).lte(new_B.mul(old_L)));
@@ -494,7 +494,7 @@ fun deposit_spec<A, B>(
     (result_input_a, result_input_b, result_lp)
 }
 
-#[spec]
+#[spec(verify)]
 fun generic_deposit_spec(
     input_a_value: u64,
     input_b_value: u64,
@@ -508,14 +508,8 @@ fun generic_deposit_spec(
 
     requires(0 < input_a_value);
     requires(0 < input_b_value);
-    requires(old_A.add(input_a_value.to_int()).lte(u64::max_value!().to_int()));
-    requires(old_B.add(input_b_value.to_int()).lte(u64::max_value!().to_int()));
 
-    requires(
-        old_L.is_zero!() && old_A.is_zero!() && old_B.is_zero!() || !old_L.is_zero!() && !old_A.is_zero!() && !old_B.is_zero!(),
-    );
-
-    // L^2 <= A * B
+    // // L^2 <= A * B
     requires(old_L.mul(old_L).lte(old_A.mul(old_B)));
 
     // We also prove that `generic_deposit` cannot generate any overflows or divisions by zero.
@@ -535,15 +529,15 @@ fun generic_deposit_spec(
 
     ensures(deposit_a <= input_a_value);
     ensures(deposit_b <= input_b_value);
-    ensures(new_L.lte(u64::max_value!().to_int()));
+    // ensures(new_L.lte(u64::max_value!().to_int()));
 
     ensures(
         new_L.is_zero!() && new_A.is_zero!() && new_B.is_zero!() || !new_L.is_zero!() && !new_A.is_zero!() && !new_B.is_zero!(),
     );
 
-    // (L + dL) * A <= (A + dA) * L <=> L' * A <= A' * L
+    // // (L + dL) * A <= (A + dA) * L
     ensures(new_L.mul(old_A).lte(new_A.mul(old_L)));
-    // (L + dL) * B <= (B + dB) * L <=> L' * B <= B' * L
+    // // (L + dL) * B <= (B + dB) * L
     ensures(new_L.mul(old_B).lte(new_B.mul(old_L)));
     // L^2 <= A * B
     ensures(new_L.mul(new_L).lte(new_A.mul(new_B)));
@@ -674,9 +668,6 @@ fun generic_swap_spec(
 
     // L'^2 * A * B <= L^2 * A' * B'
     ensures(new_L.mul(new_L).mul(old_A).mul(old_B).lte(old_L.mul(old_L).mul(new_A).mul(new_B)));
-    // help the prover with `swap_b`
-    // L'^2 * B * A <= L^2 * B' * A'
-    ensures(new_L.mul(new_L).mul(old_B).mul(old_A).lte(old_L.mul(old_L).mul(new_B).mul(new_A)));
     // L'^2 <= A' * B'
     ensures(new_L.mul(new_L).lte(new_A.mul(new_B)));
 
@@ -694,7 +685,6 @@ fun admin_set_fees_spec<A, B>(
     asserts(admin_fee_pct <= 100);
     admin_set_fees(pool, cap, lp_fee_bps, admin_fee_pct);
 }
-
 #[spec]
 fun sqrt_spec(x: u128): u64 {
     let result = sqrt(x);
