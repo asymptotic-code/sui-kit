@@ -1,3 +1,4 @@
+#[allow(unused_function)]
 module amm::pool;
 
 use std::type_name::{Self, TypeName};
@@ -508,6 +509,10 @@ fun generic_deposit_spec(
 
     requires(0 < input_a_value);
     requires(0 < input_b_value);
+
+    requires(
+        old_L.is_zero!() && old_A.is_zero!() && old_B.is_zero!() || !old_L.is_zero!() && !old_A.is_zero!() && !old_B.is_zero!(),
+    );
 
     // // L^2 <= A * B
     requires(old_L.mul(old_L).lte(old_A.mul(old_B)));
