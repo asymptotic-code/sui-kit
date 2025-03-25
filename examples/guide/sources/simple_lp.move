@@ -10,7 +10,8 @@ use prover::ghost::{declare_global, global};
 
 public struct LP<phantom T> has drop {}
 
-public struct Pool<phantom T> has store {
+public struct Pool<phantom T> has key, store {
+    id: sui::object::UID,
     balance: Balance<T>,
     shares: Supply<LP<T>>,
 }
