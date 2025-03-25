@@ -1,5 +1,5 @@
 ---
-title: Sui Move Prover
+title: Sui Prover
 ---
 
 The Sui Prover is a tool for verifying the correctness of Move smart contracts on the Sui blockchain. It is based on the Boogie verification engine and the Z3 SMT solver.
@@ -69,7 +69,7 @@ fun withdraw_spec<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T> 
 Let's break down the above:
 
 - The specification will be a new function `withdraw_spec` that takes the same arguments as the `withdraw` function and returns the same type.
-- The function is annotated with `#[spec(verify)]` to indicate that it is a specification and that it will be verified using the Move Prover.
+- The function is annotated with `#[spec(verify)]` to indicate that it is a specification and that it will be verified using the Sui Prover.
 - The body of the spec function usually:
   - specifies the conditions which are assumed to hold on the arguments of the function
   - then calls the function to be verified
@@ -151,17 +151,15 @@ Let's break down the specification:
    result
    ```
 
-## Running the Move Prover
+## Running the Sui Prover
 
-To run the Move Prover, you need to have the Move Prover installed and configured.
+To run the Sui Prover, you need to have the Sui Prover installed and configured.
 
-Use the following command to run the Move Prover:
+Run the following command from the `move.toml` directory to run the Sui Prover:
 
 ```
-sui-move build --generate-boogie
+sui-prover
 ```
-
-When the specifications are correct, the output is empty. On error, the Move Prover will print a message and the location of the source of the error.
 
 ## Using ghost variables
 
