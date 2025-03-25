@@ -2,40 +2,17 @@
 title: Sui Move Prover
 ---
 
-The Sui Move Prover is a tool for verifying the correctness of Move smart contracts on the Sui blockchain. It is based on the Boogie verification engine and the Z3 SMT solver.
+The Sui Prover is a tool for verifying the correctness of Move smart contracts on the Sui blockchain. It is based on the Boogie verification engine and the Z3 SMT solver.
 
 ## Installation
 
-_We are working on making the Move Prover a standalone tool, as part of the [Move Nursery](https://github.com/MystenLabs/move-nursery)._
-
-_In the meantime, you can install the Move Prover by building our fork of the Sui framework:_
-
-_https://github.com/asymptotic-code/sui/tree/revive_prover_
-
-_To avoid building the entire Sui framework, use the following command:_
-
 ```bash
-cargo install --features "build" --locked --path crates/sui-move
-```
-
-_The above creates a binary called `sui-move` that you can use to run the Move Prover._
-
-_Next, install [Boogie](https://github.com/boogie-org/boogie). This requires .NET._
-
-_Next, install [Z3](https://github.com/Z3Prover/z3). On MacOS, use:_
-```bash
-brew install z3
-```
-
-_Next, export:_
-```
-BOOGIE_EXE=boogie
-Z3_EXE=<full-path-to-z3>
+brew install asymptotic-code/sui-prover/sui-prover
 ```
 
 ## Basic usage
 
-To use the Move Prover you need to write specifications for your smart contract. The Move Prover will then verify that your smart contract satisfies these specifications.
+To use the Sui Prover you need to write specifications for your smart contract. The Sui Prover will then attempt to prove that your smart contract satisfies these specifications.
 
 ### Example
 
