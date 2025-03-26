@@ -48,7 +48,7 @@ public fun withdraw<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T
 }
 
 // Verify that the price of the token is not decreased by withdrawing liquidity
-#[spec(verify)]
+#[spec(prove)]
 fun withdraw_spec<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T> {
     requires(shares_in.value() <= pool.shares.supply_value());
 
