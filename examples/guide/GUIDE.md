@@ -53,7 +53,7 @@ To verify that the `withdraw` function is correct, we need to write a specificat
 Specs usually have the following structure:
 
 ```move
-#[spec(verify)]
+#[spec(prove)]
 fun withdraw_spec<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T> {
 
     // Conditions which are assumed to hold on the arguments of the function
@@ -81,7 +81,7 @@ Let's break down the above:
 Let's write a specification that says that the price of a share should not decrease when withdrawing funds:
 
 ```move
-#[spec(verify)]
+#[spec(prove)]
 fun withdraw_spec<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T> {
     requires(shares_in.value() <= pool.shares.supply_value());
 
@@ -310,7 +310,7 @@ public fun withdraw<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T
 }
 
 // Verify that the price of the token is not decreased by withdrawing liquidity
-#[spec(verify)]
+#[spec(prove)]
 fun withdraw_spec<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T> {
     requires(shares_in.value() <= pool.shares.supply_value());
 
