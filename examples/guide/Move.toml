@@ -3,7 +3,7 @@ name = "sui-prover-guide"
 edition = "2024.beta"
 
 [dependencies]
-Sui = { git = "https://github.com/asymptotic-code/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "next" }
+Sui = { git = "https://github.com/asymptotic-code/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "ghost-borrow_mut" }
 
 [addresses]
 amm = "0x0"
