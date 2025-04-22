@@ -3,8 +3,7 @@ name = "AMM"
 edition = "2024.beta"
 
 [dependencies]
-# Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet-v1.32.2" }
-Sui = { local = "../../../sui/crates/sui-framework/packages/sui-framework", override = true }
+Sui = { git = "https://github.com/asymptotic-code/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "emit-fix" }
 
 [addresses]
 amm = "0x0"

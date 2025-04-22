@@ -495,7 +495,7 @@ fun deposit_spec<A, B>(
     (result_input_a, result_input_b, result_lp)
 }
 
-#[spec(verify)]
+#[spec(prove)]
 fun generic_deposit_spec(
     input_a_value: u64,
     input_b_value: u64,
