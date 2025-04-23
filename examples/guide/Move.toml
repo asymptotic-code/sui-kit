@@ -3,7 +3,7 @@ name = "sui-prover-guide"
 edition = "2024.beta"
 
 [dependencies]
-SuiSpecs = { git = "https://github.com/asymptotic-code/sui-prover.git", subdir = "packages/sui-framework-specs", rev = "bring-in-packages", override = true }
+SuiSpecs = { git = "https://github.com/asymptotic-code/sui-prover.git", subdir = "packages/sui-framework-specs", rev = "main", override = true }
 
 [addresses]
 amm = "0x0"
