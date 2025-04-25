@@ -3,7 +3,7 @@ name = "AMM"
 edition = "2024.beta"
 
 [dependencies]
-Sui = { git = "https://github.com/asymptotic-code/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "emit-fix" }
+SuiProver = { git = "https://github.com/asymptotic-code/sui-prover.git", subdir = "packages/sui-prover", rev = "main", override = true }
 
 [addresses]
 amm = "0x0"
