@@ -3,4 +3,4 @@ name = "showcase"
 edition = "2024.beta"
 
 [addresses]
-amm = "0x0"
+showcase = "0x0"

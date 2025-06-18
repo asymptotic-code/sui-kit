@@ -2,3 +2,4 @@ output.bpl
 output/
 *.log.*
 *.bpl.log
+.DS_Store
