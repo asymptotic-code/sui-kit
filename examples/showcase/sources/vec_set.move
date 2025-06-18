@@ -4,37 +4,37 @@ use prover::prover::{ensures, old, requires};
 
 use sui::vec_set;
 
-fun foo(s: vec_set::VecSet<u64>): vec_set::VecSet<u64> {
+fun from_keys_preserves_identity(s: vec_set::VecSet<u64>): vec_set::VecSet<u64> {
     vec_set::from_keys(s.into_keys())
 }
 
 #[spec(prove)]
-fun foo_spec(s: vec_set::VecSet<u64>): vec_set::VecSet<u64> {
+fun from_keys_preserves_identity_spec(s: vec_set::VecSet<u64>): vec_set::VecSet<u64> {
   let old_s = old!(&s);
-  let result = foo(s);
+  let result = from_keys_preserves_identity(s);
   ensures(&result == old_s);
   result
 }
 
 
-fun bar(s: &mut vec_set::VecSet<u64>) {
+fun insert_new_element(s: &mut vec_set::VecSet<u64>) {
   s.insert(10);
 }
 
 #[spec(prove)]
-fun bar_spec(s: &mut vec_set::VecSet<u64>) {
+fun insert_new_element_spec(s: &mut vec_set::VecSet<u64>) {
   requires(!s.contains(&10));
-  bar(s);
+  insert_new_element(s);
   ensures(s.contains(&10));
 }
 
-fun baz(s: &mut vec_set::VecSet<u64>) {
+fun remove_existing_element(s: &mut vec_set::VecSet<u64>) {
   s.remove(&10);
 }
 
 #[spec(prove)]
-fun baz_spec(s: &mut vec_set::VecSet<u64>) {
+fun remove_existing_element_spec(s: &mut vec_set::VecSet<u64>) {
   requires(s.contains(&10));
-  baz(s);
+  remove_existing_element(s);
   ensures(!s.contains(&10));
 }
