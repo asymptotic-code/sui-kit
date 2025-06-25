@@ -1,0 +1,12 @@
+[package]
+name = "crowdfunding"
+version = "0.0.1"
+edition = "2024"
+published-at = "0x0"
+
+[dependencies]
+# Note: We're using implicit dependencies as per the Sui Prover requirements
+# Do not explicitly specify Sui or MoveStdlib dependencies
+
+[addresses]
+crowdfunding = "0x0" 
