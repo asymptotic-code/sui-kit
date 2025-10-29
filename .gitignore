@@ -3,3 +3,4 @@ output/
 *.log.*
 *.bpl.log
 .DS_Store
+Move.lock

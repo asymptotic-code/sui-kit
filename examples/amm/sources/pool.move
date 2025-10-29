@@ -495,7 +495,7 @@ fun deposit_spec<A, B>(
     (result_input_a, result_input_b, result_lp)
 }
 
-#[spec(prove)]
+#[spec(prove, boogie_opt=b"vcsMaxKeepGoingSplits:2 vcsSplitOnEveryAssert vcsFinalAssertTimeout:600")]
 fun generic_deposit_spec(
     input_a_value: u64,
     input_b_value: u64,
@@ -550,7 +550,7 @@ fun generic_deposit_spec(
     (deposit_a, deposit_b, lp_to_issue)
 }
 
-#[spec(prove)]
+#[spec(prove, boogie_opt=b"vcsMaxKeepGoingSplits:2 vcsSplitOnEveryAssert vcsFinalAssertTimeout:600")]
 fun withdraw_spec<A, B>(pool: &mut Pool<A, B>, lp_in: Balance<LP<A, B>>): (Balance<A>, Balance<B>) {
     requires_balance_leq_supply!(&lp_in, &pool.lp_supply);
 
@@ -627,7 +627,7 @@ fun swap_b_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<B>): Balance<A> {
     result
 }
 
-#[spec(prove)]
+#[spec(prove, boogie_opt=b"vcsMaxKeepGoingSplits:2 vcsSplitOnEveryAssert vcsFinalAssertTimeout:600")]
 fun generic_swap_spec(
     i_value: u64,
     i_pool_value: u64,
