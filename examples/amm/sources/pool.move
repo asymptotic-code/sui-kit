@@ -598,7 +598,7 @@ fun swap_a_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<A>): Balance<B> {
     result
 }
 
-#[spec(prove)]
+#[spec(prove, boogie_opt=b"vcsMaxKeepGoingSplits:2 vcsSplitOnEveryAssert vcsFinalAssertTimeout:600")]
 fun swap_b_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<B>): Balance<A> {
     requires_balance_sum_no_overflow!(&pool.balance_b, &input);
     requires_balance_leq_supply!(&pool.admin_fee_balance, &pool.lp_supply);
