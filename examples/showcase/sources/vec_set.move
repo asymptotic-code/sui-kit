@@ -1,6 +1,6 @@
 module showcase::vec_set;
 
-use prover::prover::{ensures, old, requires};
+use prover::prover::{ensures, clone, requires};
 
 use sui::vec_set;
 
@@ -10,7 +10,7 @@ fun from_keys_preserves_identity(s: vec_set::VecSet<u64>): vec_set::VecSet<u64> 
 
 #[spec(prove)]
 fun from_keys_preserves_identity_spec(s: vec_set::VecSet<u64>): vec_set::VecSet<u64> {
-  let old_s = old!(&s);
+  let old_s = clone!(&s);
   let result = from_keys_preserves_identity(s);
   ensures(&result == old_s);
   result
