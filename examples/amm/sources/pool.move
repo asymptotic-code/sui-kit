@@ -381,7 +381,7 @@ public fun admin_set_fees<A, B>(
 /* ================= spec only ================= */
 
 #[spec_only]
-use prover::prover::{requires, ensures, asserts, old};
+use prover::prover::{requires, ensures, asserts, clone};
 
 /// Invariant for the pool state.
 #[spec_only]
@@ -485,7 +485,7 @@ fun deposit_spec<A, B>(
     // We also prove that `deposit` cannot generate any overflows or divisions by zero.
     // This is reflected in the spec by the fact that there are no asserts.
 
-    let old_pool = old!(pool);
+    let old_pool = clone!(pool);
 
     let (result_input_a, result_input_b, result_lp) = deposit(pool, input_a, input_b);
 
@@ -557,7 +557,7 @@ fun withdraw_spec<A, B>(pool: &mut Pool<A, B>, lp_in: Balance<LP<A, B>>): (Balan
     // We also prove that `withdraw` cannot generate any overflows or divisions by zero.
     // This is reflected in the spec by the fact that there are no asserts.
 
-    let old_pool = old!(pool);
+    let old_pool = clone!(pool);
 
     let (result_a, result_b) = withdraw(pool, lp_in);
 
@@ -582,7 +582,7 @@ fun swap_a_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<A>): Balance<B> {
     // We also prove that `swap_a` cannot generate any overflows or divisions by zero.
     // This is reflected in the spec by the fact that there are no asserts.
 
-    let old_pool = old!(pool);
+    let old_pool = clone!(pool);
 
     let result = swap_a(pool, input);
 
@@ -611,7 +611,7 @@ fun swap_b_spec<A, B>(pool: &mut Pool<A, B>, input: Balance<B>): Balance<A> {
     // We also prove that `swap_b` cannot generate any overflows or divisions by zero.
     // This is reflected in the spec by the fact that there are no asserts.
 
-    let old_pool = old!(pool);
+    let old_pool = clone!(pool);
 
     let result = swap_b(pool, input);
 
