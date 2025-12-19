@@ -1,6 +1,6 @@
 module showcase::vec_map;
 
-use prover::prover::{ensures, old, requires};
+use prover::prover::{ensures, clone, requires};
 
 use sui::vec_map;
 
@@ -11,7 +11,7 @@ fun deconstruct_and_reconstruct(m: vec_map::VecMap<u64, u8>): vec_map::VecMap<u6
 
 #[spec(prove)]
 fun deconstruct_and_reconstruct_preserves_map(m: vec_map::VecMap<u64, u8>): vec_map::VecMap<u64, u8> {
-  let old_m = old!(&m);
+  let old_m = clone!(&m);
   let result = deconstruct_and_reconstruct(m);
   ensures(&result == old_m);
   result

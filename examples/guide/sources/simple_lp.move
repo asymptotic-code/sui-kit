@@ -4,7 +4,7 @@ use sui::balance::{Balance, Supply, zero};
 use sui::event;
 
 #[spec_only]
-use prover::prover::{requires, ensures, old};
+use prover::prover::{requires, ensures, clone};
 #[spec_only]
 use prover::ghost::{declare_global, global};
 
@@ -54,7 +54,7 @@ fun withdraw_spec<T>(pool: &mut Pool<T>, shares_in: Balance<LP<T>>): Balance<T> 
 
     declare_global<LargeWithdrawEvent, bool>();
 
-    let old_pool = old!(pool);
+    let old_pool = clone!(pool);
     let shares_in_value = shares_in.value();
 
     let result = withdraw(pool, shares_in);
